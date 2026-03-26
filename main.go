@@ -23,11 +23,11 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const version = "1.1.0"
+const version = "1.2.0"
 
 func main() {
 	if len(os.Args) < 2 {
-		printUsage()
+		printUsageTo(os.Stderr)
 		os.Exit(1)
 	}
 
@@ -40,16 +40,16 @@ func main() {
 	case "version", "-v", "--version":
 		fmt.Printf("geo-conv v%s\n", version)
 	case "help", "-h", "--help":
-		printUsage()
+		printUsageTo(os.Stdout)
 	default:
 		fmt.Fprintf(os.Stderr, "Error: unknown command %q\n\n", cmd)
-		printUsage()
+		printUsageTo(os.Stderr)
 		os.Exit(1)
 	}
 }
 
-func printUsage() {
-	fmt.Fprintf(os.Stderr, `geo-conv v%s — convert v2ray/xray geo databases to sing-box format
+func printUsageTo(w *os.File) {
+	fmt.Fprintf(w, `geo-conv v%s — convert v2ray/xray geo databases to sing-box format
 
 Usage:
   geo-conv geoip   -i <input.dat> -o <output.db>
@@ -77,7 +77,7 @@ func parseFlags(args []string, defaultIn, defaultOut string) (string, string) {
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
 		case "-h", "--help", "help":
-			printUsage()
+			printUsageTo(os.Stdout)
 			os.Exit(0)
 		case "-i":
 			if i+1 < len(args) {
@@ -165,20 +165,22 @@ func runGeoIP(args []string) {
 	if err != nil {
 		fatal("cannot create output file: %v", err)
 	}
-	defer outFile.Close()
 
 	bufWriter := bufio.NewWriter(outFile)
 	if _, err := writer.WriteTo(bufWriter); err != nil {
+		outFile.Close()
 		os.Remove(outputPath)
 		fatal("MMDB write error: %v", err)
 	}
 	if err := bufWriter.Flush(); err != nil {
+		outFile.Close()
 		os.Remove(outputPath)
 		fatal("flush error: %v", err)
 	}
 
 	fi, _ := outFile.Stat()
 	fmt.Fprintf(os.Stderr, "Done! %s (%.2f MB)\n", outputPath, float64(fi.Size())/1024/1024)
+	outFile.Close()
 }
 
 // ---------------------------------------------------------------------------
@@ -242,20 +244,22 @@ func runGeoSite(args []string) {
 	if err != nil {
 		fatal("cannot create output file: %v", err)
 	}
-	defer outFile.Close()
 
 	bufWriter := bufio.NewWriter(outFile)
 	if err := geositedb.Write(bufWriter, domainMap); err != nil {
+		outFile.Close()
 		os.Remove(outputPath)
 		fatal("geosite write error: %v", err)
 	}
 	if err := bufWriter.Flush(); err != nil {
+		outFile.Close()
 		os.Remove(outputPath)
 		fatal("flush error: %v", err)
 	}
 
 	fi, _ := outFile.Stat()
 	fmt.Fprintf(os.Stderr, "Done! %s (%.2f MB)\n", outputPath, float64(fi.Size())/1024/1024)
+	outFile.Close()
 }
 
 // appendDomainItem converts a v2ray Domain proto to sing-box geosite items.
