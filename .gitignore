@@ -1,0 +1,10 @@
+# Binaries
+geo-conv
+geo-conv.exe
+*.db
+*.dat
+
+# IDE
+.idea/
+.vscode/
+*.swp
