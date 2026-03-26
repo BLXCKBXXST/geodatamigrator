@@ -1,6 +1,7 @@
 # Binaries
 geo-conv
-geo-conv.exe
+geo-conv-*
+*.exe
 *.db
 *.dat
 
