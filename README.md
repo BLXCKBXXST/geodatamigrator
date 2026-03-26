@@ -15,6 +15,20 @@
 - Собирается стандартной командой `go build` без правок
 - Кроссплатформенно: Windows, Linux, macOS
 
+## Готовые бинарники
+
+На странице [Releases](https://github.com/BLXCKBXXST/geodatamigrator/releases) доступны готовые сборки для:
+
+| Платформа | Файл |
+|---|---|
+| Linux x86_64 | `geo-conv-linux-amd64` |
+| Linux ARM64 | `geo-conv-linux-arm64` |
+| Windows x86_64 | `geo-conv-windows-amd64.exe` |
+| macOS x86_64 | `geo-conv-darwin-amd64` |
+| macOS ARM64 (M1/M2) | `geo-conv-darwin-arm64` |
+
+Скачай, сделай `chmod +x` (на Linux/macOS) и пользуйся — Go не нужен.
+
 ## Требования для сборки
 
 - **Go 1.22+** (рекомендуется 1.22 или новее)
@@ -104,6 +118,25 @@ geo-conv geosite -i geosite.dat -o geosite.db
 cp geoip.db geosite.db /etc/sing-box/
 # или для Nekobox — в соответствующую папку клиента
 ```
+
+## Использование с RoscomVPN
+
+Для пользователей из России, которые используют кастомные geo-базы от [RoscomVPN](https://github.com/hydraponique):
+
+```bash
+# Скачать dat-файлы от RoscomVPN
+wget https://github.com/hydraponique/roscomvpn-geoip/raw/master/release/geoip.dat
+wget https://github.com/hydraponique/roscomvpn-geosite/raw/master/release/geosite.dat
+
+# Конвертировать
+geo-conv geoip -i geoip.dat -o geoip.db
+geo-conv geosite -i geosite.dat -o geosite.db
+
+# Результат: geoip.db (~0.5 MB), geosite.db (~0.1 MB)
+# Скопировать в рабочую директорию sing-box / Nekobox
+```
+
+RoscomVPN использует стандартный protobuf-формат v2ray, поэтому конвертируется без проблем. В их geoip.dat содержатся записи для `ru`, `private` и других категорий, в geosite.dat — списки заблокированных доменов.
 
 ## Совместимость
 
