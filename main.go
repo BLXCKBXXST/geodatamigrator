@@ -23,7 +23,7 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-const version = "1.0.0"
+const version = "1.1.0"
 
 func main() {
 	if len(os.Args) < 2 {
@@ -70,11 +70,15 @@ Options:
 }
 
 // parseFlags extracts -i and -o from args. Returns (input, output).
+// If -h or --help is found, prints usage and exits.
 func parseFlags(args []string, defaultIn, defaultOut string) (string, string) {
 	input := defaultIn
 	output := defaultOut
 	for i := 0; i < len(args); i++ {
 		switch args[i] {
+		case "-h", "--help", "help":
+			printUsage()
+			os.Exit(0)
 		case "-i":
 			if i+1 < len(args) {
 				input = args[i+1]
@@ -96,6 +100,10 @@ func parseFlags(args []string, defaultIn, defaultOut string) (string, string) {
 
 func runGeoIP(args []string) {
 	inputPath, outputPath := parseFlags(args, "geoip.dat", "geoip.db")
+
+	if err := checkFileExists(inputPath); err != nil {
+		fatal("%v", err)
+	}
 
 	fmt.Fprintf(os.Stderr, "Reading %s ...\n", inputPath)
 	data, err := os.ReadFile(inputPath)
@@ -179,6 +187,10 @@ func runGeoIP(args []string) {
 
 func runGeoSite(args []string) {
 	inputPath, outputPath := parseFlags(args, "geosite.dat", "geosite.db")
+
+	if err := checkFileExists(inputPath); err != nil {
+		fatal("%v", err)
+	}
 
 	fmt.Fprintf(os.Stderr, "Reading %s ...\n", inputPath)
 	data, err := os.ReadFile(inputPath)
@@ -291,6 +303,21 @@ func dedup(items []geositedb.Item) []geositedb.Item {
 		}
 	}
 	return result
+}
+
+// checkFileExists provides a clear error message when the input file is missing.
+func checkFileExists(path string) error {
+	info, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("input file not found: %s", path)
+	}
+	if err != nil {
+		return fmt.Errorf("cannot access input file: %v", err)
+	}
+	if info.IsDir() {
+		return fmt.Errorf("input path is a directory, not a file: %s", path)
+	}
+	return nil
 }
 
 func fatal(format string, args ...interface{}) {

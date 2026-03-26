@@ -512,7 +512,7 @@ const file_proto_geodata_proto_rawDesc = "" +
 	"\fcountry_code\x18\x01 \x01(\tR\vcountryCode\x12'\n" +
 	"\x06domain\x18\x02 \x03(\v2\x0f.geodata.DomainR\x06domain\"5\n" +
 	"\vGeoSiteList\x12&\n" +
-	"\x05entry\x18\x01 \x03(\v2\x10.geodata.GeoSiteR\x05entryB%Z#github.com/BLXCKBXXST/geodatamigrator/protob\x06proto3"
+	"\x05entry\x18\x01 \x03(\v2\x10.geodata.GeoSiteR\x05entryB-Z+github.com/BLXCKBXXST/geodatamigrator/protob\x06proto3"
 
 var (
 	file_proto_geodata_proto_rawDescOnce sync.Once
